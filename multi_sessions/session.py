@@ -95,3 +95,17 @@ class SessionStore(SessionBase):
                 if any(map(lambda mode: mode in backend['modes'], modes)):
                     backends.append(backend)
             return backends
+
+
+    @classmethod
+    def clear_expired(cls):
+        expired = False
+        for backend in settings.SESSION_MULTISESSIONS_POOL:
+            try:
+                engine = import_module(backend['backend'])
+                engine.SessionStore.clear_expired()
+                expired = True
+            except NotImplementedError:
+                pass
+        if expired is False:
+            raise NotImplementedError()
